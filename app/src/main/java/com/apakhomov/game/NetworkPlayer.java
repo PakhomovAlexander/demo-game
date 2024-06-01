@@ -1,37 +1,22 @@
 package com.apakhomov.game;
 
-import java.io.*;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
+import com.apakhomov.game.io.PromptMsg;
+import com.apakhomov.game.io.PromptType;
 
+// TODO rename
 public class NetworkPlayer implements Player {
-    private final Socket socket;
     private final String username;
-    private final Writer out;
-    private final BufferedReader in;
+    private final PlayerInterface pi;
 
-    public NetworkPlayer(Socket socket) {
-        this.socket = socket;
-        try {
-            this.out = new PrintWriter(socket.getOutputStream(), true);
-            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out.write("Enter your username: ");
-            out.flush();
-            this.username = in.readLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public NetworkPlayer(PlayerInterface pi) {
+        this.pi = pi;
+        this.username = pi.prompt(new PromptMsg("Enter your username: ", PromptType.ENTER_USERNAME)).content();
     }
 
     @Override
     public Shape move() {
-        try {
-            out.write("Your move: ");
-            out.flush();
-            return Shape.valueOf(in.readLine());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        var shapeStr = pi.prompt(new PromptMsg("Your move: ", PromptType.MOVE));
+        return Shape.valueOf(shapeStr.content());
     }
 
     @Override
