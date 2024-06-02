@@ -1,5 +1,7 @@
 package com.apakhomov.game;
 
+import com.apakhomov.game.player.Player;
+import com.apakhomov.game.player.PlayerState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -11,6 +13,7 @@ import java.util.Queue;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class GameTest {
     InMemoryPlayer alice;
@@ -34,7 +37,7 @@ class GameTest {
         alice = new InMemoryPlayer("Alice");
         bob = new InMemoryPlayer("Bob");
 
-        game = new Game(List.of(alice, bob));
+        game = new Game(alice, bob);
     }
 
     @ParameterizedTest
@@ -45,10 +48,11 @@ class GameTest {
         bob.nextMove(bobMove);
 
         // When
-        var winner = game.start();
+        var result = game.start();
 
         // Then
-        assertEquals(expectedWinnerUsername, winner.username());
+        assertEquals(expectedWinnerUsername, result.winner().username());
+        assertNotEquals(expectedWinnerUsername, result.looser().username());
     }
 
     private void setupMoves(Shape[] shapes) {
@@ -73,8 +77,43 @@ class GameTest {
         }
 
         @Override
+        public void enterUsername() {
+
+        }
+
+        @Override
         public String username() {
             return username;
+        }
+
+        @Override
+        public PlayerState state() {
+            return PlayerState.WAITING_FOR_MOVE;
+        }
+
+        @Override
+        public void notifyWin() {
+
+        }
+
+        @Override
+        public void notifyLose() {
+
+        }
+
+        @Override
+        public void notifyOpponentMove(Shape shape) {
+
+        }
+
+        @Override
+        public void notifyDraw() {
+
+        }
+
+        @Override
+        public void meetOpponent(String opponentUsername) {
+
         }
 
         public void nextMove(Shape shape) {

@@ -3,10 +3,67 @@ package com.apakhomov.game.io;
 import com.apakhomov.game.io.validation.ValidationIssue;
 
 public class DefaultTextRegistry implements TextRegistry {
+    private static final String WELCOME_TEXT = """
+██████╗  ██████╗  ██████╗██╗  ██╗                           
+██╔══██╗██╔═══██╗██╔════╝██║ ██╔╝                           
+██████╔╝██║   ██║██║     █████╔╝                            
+██╔══██╗██║   ██║██║     ██╔═██╗                            
+██║  ██║╚██████╔╝╚██████╗██║  ██╗                           
+╚═╝  ╚═╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝                           
+██████╗  █████╗ ██████╗ ███████╗██████╗                     
+██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔══██╗                    
+██████╔╝███████║██████╔╝█████╗  ██████╔╝                    
+██╔═══╝ ██╔══██║██╔═══╝ ██╔══╝  ██╔══██╗                    
+██║     ██║  ██║██║     ███████╗██║  ██║                    
+╚═╝     ╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝                    
+███████╗ ██████╗██╗███████╗███████╗ ██████╗ ██████╗ ███████╗
+██╔════╝██╔════╝██║██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝
+███████╗██║     ██║███████╗███████╗██║   ██║██████╔╝███████╗
+╚════██║██║     ██║╚════██║╚════██║██║   ██║██╔══██╗╚════██║
+███████║╚██████╗██║███████║███████║╚██████╔╝██║  ██║███████║
+╚══════╝ ╚═════╝╚═╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝
+
+            """;
+
+    private static final String YOU_WIN_TEXT = """
+██╗   ██╗ ██████╗ ██╗   ██╗    
+╚██╗ ██╔╝██╔═══██╗██║   ██║    
+ ╚████╔╝ ██║   ██║██║   ██║    
+  ╚██╔╝  ██║   ██║██║   ██║    
+   ██║   ╚██████╔╝╚██████╔╝    
+   ╚═╝    ╚═════╝  ╚═════╝     
+██╗    ██╗██╗███╗   ██╗██╗     
+██║    ██║██║████╗  ██║██║     
+██║ █╗ ██║██║██╔██╗ ██║██║     
+██║███╗██║██║██║╚██╗██║╚═╝     
+╚███╔███╔╝██║██║ ╚████║██╗     
+ ╚══╝╚══╝ ╚═╝╚═╝  ╚═══╝╚═╝     
+ 
+    """;
+
+    private static final String YOU_LOSE_TEXT = """
+██╗   ██╗ ██████╗ ██╗   ██╗                          
+╚██╗ ██╔╝██╔═══██╗██║   ██║                          
+ ╚████╔╝ ██║   ██║██║   ██║                          
+  ╚██╔╝  ██║   ██║██║   ██║                          
+   ██║   ╚██████╔╝╚██████╔╝                          
+   ╚═╝    ╚═════╝  ╚═════╝                           
+██╗      ██████╗  ██████╗ ███████╗███████╗        ██╗
+██║     ██╔═══██╗██╔═══██╗██╔════╝██╔════╝    ██╗██╔╝
+██║     ██║   ██║██║   ██║███████╗█████╗      ╚═╝██║ 
+██║     ██║   ██║██║   ██║╚════██║██╔══╝      ██╗██║ 
+███████╗╚██████╔╝╚██████╔╝███████║███████╗    ╚═╝╚██╗
+╚══════╝ ╚═════╝  ╚═════╝ ╚══════╝╚══════╝        ╚═╝
+                                                      
+    """;
+
+
+
+
     @Override
     public String initialText(PromptMsg prompt) {
         return switch (prompt.type()) {
-            case ENTER_USERNAME -> "Enter your username:";
+            case ENTER_USERNAME -> WELCOME_TEXT + "Enter your username:";
             case MOVE -> "Enter your move:";
         };
     }
@@ -28,6 +85,11 @@ public class DefaultTextRegistry implements TextRegistry {
 
     @Override
     public String notificationText(NotificationMsg notification) {
-        return notification.content();
+        return switch (notification.type()) {
+            case YOU_WIN -> YOU_WIN_TEXT;
+            case YOU_LOSE -> YOU_LOSE_TEXT;
+            case INFO -> notification.content();
+            case ERROR -> "Error: " + notification.content();
+        };
     }
 }

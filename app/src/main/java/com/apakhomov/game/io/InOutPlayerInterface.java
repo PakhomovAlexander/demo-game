@@ -25,7 +25,9 @@ public class InOutPlayerInterface implements PlayerInterface {
 
     @Override
     public void notify(NotificationMsg notification) {
-        out.println(notification.content());
+        out.println();
+        out.println(textRegistry.notificationText(notification));
+        out.flush();
     }
 
     @Override

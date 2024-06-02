@@ -1,56 +1,73 @@
 package com.apakhomov.game;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.apakhomov.game.exec.Worker;
+import com.apakhomov.game.player.Player;
+
+import java.util.concurrent.ExecutionException;
 
 public class Game {
-    private final List<Player> players;
-    private final Map<Player, Shape> shapes;
+    private final Worker worker;
+    private final Player p1;
+    private final Player p2;
 
-    public Game(List<Player> players) {
-        if (players.size() != 2) {
-            throw new IllegalArgumentException("Only 2 players are supported for now");
-        }
-
-        this.players = players;
-        this.shapes = new HashMap<>();
+    public Game(Player p1, Player p2, Worker worker) {
+        this.worker = worker;
+        this.p1 = p1;
+        this.p2 = p2;
     }
 
-    public Player start() {
-        System.out.println("Game started, waiting for players to make a move");
-        for (Player player : players) {
-           shapes.put(player, player.move());
-        }
+    public GameResult start() {
+        p1.meetOpponent(p2.username());
+        p2.meetOpponent(p1.username());
 
-        Player winner = getWinner();
-        if (winner == null) {
-            System.out.println("It's a draw!");
-        } else {
-            System.out.println(winner + " wins!");
-        }
+        try {
+            var result = tryRound();
 
-        return winner;
+            result.winner().notifyWin();
+            result.looser().notifyLose();
+
+            return result;
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private Player getWinner() {
-        if (shapes.get(players.get(0)) == shapes.get(players.get(1))) {
+    private GameResult tryRound() throws ExecutionException, InterruptedException {
+        var result = round();
+
+        if (result == null) {
+            p1.notifyDraw();
+            p2.notifyDraw();
+
+            return this.tryRound();
+        }
+
+        return result;
+    }
+
+    private GameResult round() throws ExecutionException, InterruptedException {
+        var p1Move = worker.call(p1::move);
+        var p2Move = worker.call(p2::move);
+
+        var p1Shape = p1Move.get();
+        var p2Shape = p2Move.get();
+
+        if (p1Shape == p2Shape) {
             return null;
         }
 
-        if (shapes.get(players.get(0)) == Shape.ROCK && shapes.get(players.get(1)) == Shape.SCISSORS) {
-            return players.get(0);
+        if (p1Shape == Shape.ROCK && p2Shape == Shape.SCISSORS) {
+            return new GameResult(p1, p2);
         }
 
-        if (shapes.get(players.get(0)) == Shape.PAPER && shapes.get(players.get(1)) == Shape.ROCK) {
-            return players.get(0);
+        if (p1Shape == Shape.PAPER && p2Shape == Shape.ROCK) {
+            return new GameResult(p1, p2);
         }
 
-        if (shapes.get(players.get(0)) == Shape.SCISSORS && shapes.get(players.get(1)) == Shape.PAPER) {
-            return players.get(0);
+        if (p1Shape == Shape.SCISSORS && p2Shape == Shape.PAPER) {
+            return new GameResult(p1, p2);
         }
 
-        return players.get(1);
+        return new GameResult(p2, p1);
     }
 }
