@@ -1,17 +1,26 @@
 package com.apakhomov.game.io;
 
 import com.apakhomov.game.PlayerInterface;
+import com.apakhomov.game.io.validation.InputValidator;
+import com.apakhomov.game.io.validation.ValidationIssue;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class InOutPlayerInterface implements PlayerInterface {
     private final BufferedReader in;
     private final PrintWriter out;
+    private final TextRegistry textRegistry;
+    private final List<InputValidator> validators;
 
-    public InOutPlayerInterface(BufferedReader in, PrintWriter out) {
+    public InOutPlayerInterface(BufferedReader in, PrintWriter out,
+                                TextRegistry textRegistry, List<InputValidator> validators) {
         this.in = in;
         this.out = out;
+        this.textRegistry = textRegistry;
+        this.validators = validators;
     }
 
     @Override
@@ -21,12 +30,42 @@ public class InOutPlayerInterface implements PlayerInterface {
 
     @Override
     public Msg prompt(PromptMsg prompt) {
-        out.println(prompt.prompt());
+        out.println(textRegistry.initialText(prompt));
         out.flush();
+        // todo: recursion is bad
         try {
-            return new Msg(in.readLine());
+            String userInput = in.readLine();
+            if (userInput == null) {
+                return null;
+            }
+
+            List<ValidationIssue> issues = validate(prompt, userInput);
+            if (issues == null) {
+                return new Msg(userInput);
+            } else {
+                for (ValidationIssue issue : issues) {
+                    out.println(textRegistry.invalidInputText(prompt, issue));
+                    out.flush();
+                }
+                return prompt(prompt);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private List<ValidationIssue> validate(PromptMsg prompt, String input) {
+        List<ValidationIssue> issues = new ArrayList<>();
+        for (InputValidator validator : validators) {
+            if (validator.isApplicable(prompt)) {
+                ValidationIssue issue = validator.validateOrNull(input);
+                if (issue == null) {
+                    continue;
+                } else {
+                    issues.add(issue);
+                }
+            }
+        }
+        return issues.isEmpty() ? null : issues;
     }
 }

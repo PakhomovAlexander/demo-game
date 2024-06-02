@@ -3,6 +3,7 @@
  */
 package com.apakhomov.game;
 
+import com.apakhomov.game.io.DefaultTextRegistry;
 import com.apakhomov.game.io.InOutPlayerInterface;
 
 import java.io.*;
@@ -21,12 +22,12 @@ public class Server {
 
             Socket socket1 = socket.accept();
             try (var in = reader(socket1); var out = writer(socket1)) {
-                Player p1 = new NetworkPlayer(new InOutPlayerInterface(in, out));
+                Player p1 = new NetworkPlayer(new InOutPlayerInterface(in, out, new DefaultTextRegistry(), List.of()));
                 System.out.println("Connected to client: " + p1.username());
 
                 Socket socket2 = socket.accept();
                 try(var in2 = reader(socket2); var out2 = writer(socket2)) {
-                    Player p2 = new NetworkPlayer(new InOutPlayerInterface(in2, out2));
+                    Player p2 = new NetworkPlayer(new InOutPlayerInterface(in2, out2, new DefaultTextRegistry(), List.of()));
                     System.out.println("Connected to client: " + p2.username());
 
                     Player winner = new Game(List.of(p1, p2)).start();
