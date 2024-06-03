@@ -4,6 +4,8 @@ This is the game of Rock, Paper, Scissors. The game is played by two players. Ea
 
 ## How to play
 
+Make sure you have Java 21 installed on your machine `java -version`.
+
 To play the game you need to start a server first:
 
 ```bash
