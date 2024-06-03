@@ -1,10 +1,9 @@
 package com.apakhomov.game.server;
 
-import com.apakhomov.game.GameController;
 import com.apakhomov.game.events.Event;
 import com.apakhomov.game.events.EventBus;
-import com.apakhomov.game.exec.Worker;
-import com.apakhomov.game.player.Player;
+import com.apakhomov.game.Worker;
+import com.apakhomov.game.Player;
 import com.apakhomov.game.player.PlayerState;
 
 import java.util.Map;
@@ -39,5 +38,9 @@ public final class PlayersPool {
             players.remove(player.username());
             bus.fire(new Event(PLAYER_LEFT, player));
         });
+    }
+
+    public boolean contains(String username) {
+        return players.containsKey(username);
     }
 }

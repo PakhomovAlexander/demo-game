@@ -1,6 +1,8 @@
 package com.apakhomov.game;
 
-import com.apakhomov.game.player.Player;
+import com.apakhomov.game.logic.Game;
+import com.apakhomov.game.logic.Shape;
+import com.apakhomov.game.worker.VirtualThreadsWorker;
 import com.apakhomov.game.player.PlayerState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,7 +10,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayDeque;
-import java.util.List;
 import java.util.Queue;
 import java.util.stream.Stream;
 
@@ -37,7 +38,7 @@ class GameTest {
         alice = new InMemoryPlayer("Alice");
         bob = new InMemoryPlayer("Bob");
 
-        game = new Game(alice, bob);
+        game = new Game(alice, bob, new VirtualThreadsWorker());
     }
 
     @ParameterizedTest
@@ -88,7 +89,7 @@ class GameTest {
 
         @Override
         public PlayerState state() {
-            return PlayerState.WAITING_FOR_MOVE;
+            return PlayerState.WAITING_FOR_OPPONENT_MOVE;
         }
 
         @Override

@@ -1,10 +1,13 @@
-package com.apakhomov.game;
+package com.apakhomov.game.logic;
 
-import com.apakhomov.game.exec.Worker;
-import com.apakhomov.game.player.Player;
+import com.apakhomov.game.Worker;
+import com.apakhomov.game.Player;
 
 import java.util.concurrent.ExecutionException;
 
+/**
+ * The logic of the game. Given two players it will run the game and return the result.
+ */
 public class Game {
     private final Worker worker;
     private final Player p1;

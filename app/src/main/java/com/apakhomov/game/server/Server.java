@@ -3,9 +3,9 @@
  */
 package com.apakhomov.game.server;
 
-import com.apakhomov.game.GameController;
 import com.apakhomov.game.events.EventBus;
-import com.apakhomov.game.exec.VirtualThreadsWorker;
+import com.apakhomov.game.player.PlayerInterfaceFactory;
+import com.apakhomov.game.worker.VirtualThreadsWorker;
 
 import java.net.ServerSocket;
 
@@ -19,21 +19,27 @@ public class Server {
     public void start() {
         try (var socket = new ServerSocket(configuration.port());
              var worker = new VirtualThreadsWorker()) {
+
             System.out.println("Server started");
 
             var bus = new EventBus(worker);
-            // todo
-            var controller = new GameController(bus, worker);
 
-            try (var manager = new ConnectionsManager(new PlayersPool(bus, worker), bus)) {
+            var controller = new GameController(bus, worker);
+            controller.start();
+
+            try (var manager = createConnectionManager(bus, worker)) {
                 while (true) {
                     manager.handle(socket.accept());
                 }
             }
 
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            throw new RuntimeException(e);
         }
+    }
+
+    private static ConnectionsManager createConnectionManager(EventBus bus, VirtualThreadsWorker worker) {
+        return new ConnectionsManager(new PlayersPool(bus, worker), new PlayerInterfaceFactory(), bus);
     }
 
 

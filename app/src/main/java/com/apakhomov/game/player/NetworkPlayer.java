@@ -1,11 +1,11 @@
 package com.apakhomov.game.player;
 
+import com.apakhomov.game.Player;
 import com.apakhomov.game.PlayerInterface;
-import com.apakhomov.game.Shape;
-import com.apakhomov.game.UserInputParser;
+import com.apakhomov.game.logic.Shape;
+import com.apakhomov.game.io.UserInputParser;
 import com.apakhomov.game.io.NotificationMsg;
 import com.apakhomov.game.io.PromptMsg;
-import com.apakhomov.game.io.PromptType;
 
 import static com.apakhomov.game.io.NotificationType.*;
 import static com.apakhomov.game.io.PromptType.*;
@@ -40,11 +40,11 @@ public class NetworkPlayer implements Player {
         }
 
         myState = switch (myState) {
-            case MOVE_REQUIRED -> opponentLastMove == null ? WAITING_FOR_MOVE : IDLE;
-            case USERNAME_NOT_SET, WAITING_FOR_MOVE, WAITING_FOR_START, IDLE, GAME_FINISHED -> null;
+            case MOVE_REQUIRED -> opponentLastMove == null ? WAITING_FOR_OPPONENT_MOVE : IDLE;
+            case USERNAME_NOT_SET, WAITING_FOR_OPPONENT_MOVE, WAITING_FOR_START, IDLE, GAME_FINISHED -> null;
         };
 
-        if (myState == WAITING_FOR_MOVE) {
+        if (myState == WAITING_FOR_OPPONENT_MOVE) {
             pi.notify(new NotificationMsg("Waiting for " + opponentUsername + " move...", INFO));
         }
 
@@ -64,7 +64,7 @@ public class NetworkPlayer implements Player {
     public void enterUsername() {
         myUsername = pi.prompt(new PromptMsg(ENTER_USERNAME)).content();
         myState = WAITING_FOR_START;
-        pi.notify(new NotificationMsg("Waiting for opponent...", INFO));
+        pi.notify(new NotificationMsg("Looking for an opponent...", INFO));
     }
 
     @Override
@@ -91,9 +91,8 @@ public class NetworkPlayer implements Player {
 
     @Override
     public void notifyOpponentMove(Shape shape) {
-        pi.notify(new NotificationMsg("Opponent move: " + shape, INFO));
         myState = switch (myState) {
-            case WAITING_FOR_MOVE -> IDLE;
+            case WAITING_FOR_OPPONENT_MOVE -> IDLE;
             case MOVE_REQUIRED -> {
                 opponentLastMove = shape;
                 yield MOVE_REQUIRED;
@@ -109,7 +108,7 @@ public class NetworkPlayer implements Player {
 
     @Override
     public void notifyDraw() {
-        pi.notify(new NotificationMsg("Draw!", INFO));
+        pi.notify(new NotificationMsg("Draw! Let's try one more time.", INFO));
         myState = MOVE_REQUIRED;
         myLastMove = null;
         opponentLastMove = null;

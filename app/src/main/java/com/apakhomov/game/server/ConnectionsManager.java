@@ -1,12 +1,12 @@
 package com.apakhomov.game.server;
 
-import com.apakhomov.game.Game;
 import com.apakhomov.game.events.EventBus;
 import com.apakhomov.game.events.EventType;
 import com.apakhomov.game.io.DefaultTextRegistry;
 import com.apakhomov.game.io.InOutPlayerInterface;
 import com.apakhomov.game.player.NetworkPlayer;
-import com.apakhomov.game.player.Player;
+import com.apakhomov.game.Player;
+import com.apakhomov.game.player.PlayerInterfaceFactory;
 
 import java.io.*;
 import java.net.Socket;
@@ -17,9 +17,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConnectionsManager implements Closeable {
     private final Map<Player, PlayerResources> resources;
     private final PlayersPool playersPool;
+    private final PlayerInterfaceFactory interfaceFactory;
 
-    public ConnectionsManager(PlayersPool playersPool, EventBus bus) {
+    public ConnectionsManager(PlayersPool playersPool, PlayerInterfaceFactory interfaceFactory, EventBus bus) {
         this.playersPool = playersPool;
+        this.interfaceFactory = interfaceFactory;
         this.resources = new ConcurrentHashMap<>();
 
         bus.register(EventType.PLAYER_WIN, event -> {
@@ -47,10 +49,11 @@ public class ConnectionsManager implements Closeable {
             var out = writer(socket);
             var resources = new PlayerResources(in, out);
 
-            Player p = new NetworkPlayer(new InOutPlayerInterface(in, out, new DefaultTextRegistry(), List.of()));
+            Player p = new NetworkPlayer(interfaceFactory.create(in, out, playersPool));
 
-            playersPool.add(p);
+            this.playersPool.add(p);
             this.resources.put(p, resources);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -1,16 +1,10 @@
-package com.apakhomov.game;
+package com.apakhomov.game.server;
 
 import com.apakhomov.game.events.Event;
 import com.apakhomov.game.events.EventBus;
-import com.apakhomov.game.exec.Worker;
-import com.apakhomov.game.player.Player;
-import com.apakhomov.game.server.PlayersPool;
-
-import java.io.Closeable;
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import com.apakhomov.game.logic.Game;
+import com.apakhomov.game.Worker;
+import com.apakhomov.game.Player;
 
 import static com.apakhomov.game.events.EventType.*;
 
@@ -24,6 +18,9 @@ public class GameController {
         this.bus = bus;
         this.waitingPlayer = null;
         this.worker = worker;
+    }
+
+    public void start() {
         bus.register(PLAYER_JOINED, event -> onPlayerJoined(event.player()));
     }
 

@@ -1,11 +1,16 @@
-package com.apakhomov.game.exec;
+package com.apakhomov.game.worker;
 
-import java.io.IOException;
+import com.apakhomov.game.Worker;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+/**
+ * The worker that uses virtual threads to perform async tasks.
+ * The usage of virtual threads should allow a single server to handle millions of connections.
+ */
 public class VirtualThreadsWorker implements Worker {
     private final ExecutorService service;
 
@@ -26,7 +31,7 @@ public class VirtualThreadsWorker implements Worker {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
          service.shutdown();
     }
 }

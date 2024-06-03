@@ -1,7 +1,8 @@
 package com.apakhomov.game.io;
 
+import com.apakhomov.game.InputValidator;
 import com.apakhomov.game.PlayerInterface;
-import com.apakhomov.game.io.validation.InputValidator;
+import com.apakhomov.game.TextRegistry;
 import com.apakhomov.game.io.validation.ValidationIssue;
 
 import java.io.BufferedReader;
@@ -27,6 +28,8 @@ public class InOutPlayerInterface implements PlayerInterface {
     public void notify(NotificationMsg notification) {
         out.println();
         out.println(textRegistry.notificationText(notification));
+        out.println();
+
         out.flush();
     }
 
@@ -34,26 +37,31 @@ public class InOutPlayerInterface implements PlayerInterface {
     public Msg prompt(PromptMsg prompt) {
         out.println(textRegistry.initialText(prompt));
         out.flush();
-        // todo: recursion is bad
-        try {
-            String userInput = in.readLine();
-            if (userInput == null) {
-                return null;
-            }
 
-            List<ValidationIssue> issues = validate(prompt, userInput);
-            if (issues == null) {
-                return new Msg(userInput);
-            } else {
-                for (ValidationIssue issue : issues) {
-                    out.println(textRegistry.invalidInputText(prompt, issue));
-                    out.flush();
+        boolean valid = false;
+        String userInput = null;
+        while (!valid) {
+            try {
+                userInput = in.readLine();
+                if (userInput == null) {
+                    return null;
                 }
-                return prompt(prompt);
+
+                List<ValidationIssue> issues = validate(prompt, userInput);
+                if (issues == null) {
+                    valid = true;
+                } else {
+                    for (ValidationIssue issue : issues) {
+                        out.println(textRegistry.invalidInputText(prompt, issue));
+                        out.flush();
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
+
+        return new Msg(userInput);
     }
 
     private List<ValidationIssue> validate(PromptMsg prompt, String input) {

@@ -1,7 +1,11 @@
-package com.apakhomov.game.player;
+package com.apakhomov.game;
 
-import com.apakhomov.game.Shape;
+import com.apakhomov.game.logic.Shape;
+import com.apakhomov.game.player.PlayerState;
 
+/**
+ * The main player interface. The only way for the game to interact with the player.
+ */
 public interface Player {
     Shape move();
 

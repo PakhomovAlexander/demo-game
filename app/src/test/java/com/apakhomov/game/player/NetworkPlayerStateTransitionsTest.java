@@ -1,7 +1,7 @@
 package com.apakhomov.game.player;
 
 import com.apakhomov.game.PlayerInterface;
-import com.apakhomov.game.Shape;
+import com.apakhomov.game.logic.Shape;
 import com.apakhomov.game.io.Msg;
 import com.apakhomov.game.io.NotificationMsg;
 import com.apakhomov.game.io.PromptMsg;
@@ -37,7 +37,7 @@ class NetworkPlayerStateTransitionsTest {
         assertEquals(PlayerState.MOVE_REQUIRED, player.state());
 
         player.move();
-        assertEquals(PlayerState.WAITING_FOR_MOVE, player.state());
+        assertEquals(PlayerState.WAITING_FOR_OPPONENT_MOVE, player.state());
 
         player.notifyOpponentMove(Shape.PAPER);
         assertEquals(PlayerState.IDLE, player.state());

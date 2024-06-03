@@ -1,10 +1,9 @@
 package com.apakhomov.game.io;
 
-import com.apakhomov.game.io.validation.InputValidator;
+import com.apakhomov.game.InputValidator;
 import com.apakhomov.game.io.validation.ValidationIssue;
 import com.apakhomov.game.io.validation.ValidationIssueType;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -86,7 +85,7 @@ class InOutPlayerInterfaceTest {
 
         @Override
         public ValidationIssue validateOrNull(String input) {
-            return input.contains(stopWord) ? new ValidationIssue(ValidationIssueType.INVALID_CHARACTER_USERNAME) : null;
+            return input.contains(stopWord) ? new ValidationIssue(ValidationIssueType.INVALID_CHARACTER) : null;
         }
 
         @Override
