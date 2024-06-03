@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.apakhomov.game.Await.assertEventually;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EventBusTest {
@@ -57,18 +58,5 @@ class EventBusTest {
         assertEventually(eventsCount, joinedEventsCount);
         assertEventually(eventsCount, winEventsCount);
         assertEventually(eventsCount, loseEventsCount);
-    }
-
-    private void assertEventually(int expected, AtomicInteger actual) {
-        int attempts = 0;
-        while (actual.get() != expected && attempts < 100) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            attempts++;
-        }
-        assertEquals(expected, actual.get());
     }
 }
