@@ -40,5 +40,5 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = 'com.apakhomov.game.Server'
+    mainClass = 'com.apakhomov.game.server.Server'
 }
